@@ -1,6 +1,6 @@
 ## Descriptions
 
-Batch scripts upscales ppsspp texture dump using: https://github.com/JoeyBallentine/ESRGAN (required).
+Batch scripts to upscales ppsspp textures dumps using: https://github.com/JoeyBallentine/ESRGAN (required).
 
 Require ImageMagick: https://imagemagick.org
 

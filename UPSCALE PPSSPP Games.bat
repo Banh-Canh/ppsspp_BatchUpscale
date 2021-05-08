@@ -18,12 +18,13 @@ set "WAIFUCAFFECUIPATH=D:\Programmes\waifu2x-caffe\waifu2x-caffe-cui.exe"
 set "WAIFUVULKANCUIPATH=D:\Programmes\waifu2x-ncnn-vulkan-20200818-windows\waifu2x-ncnn-vulkan.exe"
 
 :: PATH to all of my PPSSPP related scripts, only PPSSPPDuplicateProcess.bat is actually used for now.
-set "SCRIPTSPATH=D:\Seafile\Victor\Workshop\PPSSPPBatchScripts"
+set "SCRIPTSPATH=D:\Output"
 
 :::::::::::::::::: ESRGAN MODE ::::::::::::::::::::::::::::::::::::::::::::::::
 
 :: PATH to ESRGAN Model to use, chain model separated by ^>
-set "ESRGANMODEL=1x_BC1_take2_260850_1x_artifacts_dithering_alsa_interp_075.pth^>4x_NMKD-Yandere2_255000_G_4x_NMKD-UltraYandere_300k_interp_08.pth"
+::set "ESRGANMODEL=1x_BC1_take2_260850_1x_artifacts_dithering_alsa_interp_075.pth^>4x_NMKD-Yandere2_255000_G_4x_NMKD-UltraYandere_300k_interp_08.pth"
+set "ESRGANMODEL=1x_BC1_take2_260850_1x_artifacts_dithering_alsa_interp_075.pth^>4x_NMKD-Yandere2_255000_G_4x_NMKD-YandereNeoXL_200k_interp_08.pth"
 
 :: Additionnal ESRGAN arguments to apply
 set "ESRGANARG=--skip_existing --alpha_mode 2"
@@ -35,11 +36,15 @@ set "OUTPUTFOLDER=D:\OUTPUT"
 set "MEMSTICKFOLDER=D:\Emulation\PPSSPP\memstick"
 
 :: Re-upscale everything based on backup ?
-set "REDOFULL=NO"
+set "REDOFULL=YES"
 
 :: Apply fix for edge for sprite using spritefix by Dinjerr
 set "SPRITEFIX=YES"
 set "SPRITEFIXFOLDER=D:\Programmes\spritefix-master"
+
+:: Lossy Optimize 
+set "OPTIMIZE=YES"
+set "PNGQUANTPATH=D:\Programmes\pngquant\pngquant.exe"
 
 :: Upscale alpha channel separately ? ESRGAN ONLY
 set "SPLIT=NO"
@@ -135,12 +140,12 @@ goto :choosegame
 set "stepcreatefolders=working..."
 set "stepmovedump=working..."
 set "stepredodump=working..."
-	set "stepspritefix=working..."
-	set "stepprecaffe=working..."
-	set "stepsplitchannels=working..."
-	set "stepupscaleesrgan=working..."
-	set "stepupscaleesrgansplit=working..."
-	set "stepmergechannels=working..."
+set "stepspritefix=working..."
+set "stepprecaffe=working..."
+set "stepsplitchannels=working..."
+set "stepupscaleesrgan=working..."
+set "stepupscaleesrgansplit=working..."
+set "stepmergechannels=working..."
 set "stepinstalltextures=working..."
 call :progress
 if not %GAME%==TEST if not exist %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\new md %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\new
@@ -157,16 +162,20 @@ goto :unsuccessfulexit
 call :progress
 
 :: filter duplicate images using imagemagick and add the hashes to the textures.ini, see related .bat for infos on the arguments.
-call %SCRIPTSPATH%\PPSSPPDuplicateProcess.bat %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\new\ %OUTPUTFOLDER%\%GAME%\DUMP_BACKUP\ %OUTPUTFOLDER%\%GAME%\PROCESSING\DUMP\ 0 0 ALL %OUTPUTFOLDER%\%GAME%\PROCESSING\
+If NOT %GAME%==TEST (
 
-echo. >> %OUTPUTFOLDER%\%GAME%\DUMP_BACKUP\hashes.txt
-type %OUTPUTFOLDER%\%GAME%\PROCESSING\hashes.txt >> %OUTPUTFOLDER%\%GAME%\DUMP_BACKUP\hashes.txt
+	call %SCRIPTSPATH%\PPSSPPDuplicateProcess.bat %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\new\ %OUTPUTFOLDER%\%GAME%\DUMP_BACKUP\ %OUTPUTFOLDER%\%GAME%\PROCESSING\DUMP\ 0 0 ALL %OUTPUTFOLDER%\%GAME%\PROCESSING\
 
-type %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures_template.txt > %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
-echo. >> %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
-echo. >> %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
-echo [hashes] >> %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
-type %OUTPUTFOLDER%\%GAME%\DUMP_BACKUP\hashes.txt >> %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
+	echo. >> %OUTPUTFOLDER%\%GAME%\DUMP_BACKUP\hashes.txt
+	type %OUTPUTFOLDER%\%GAME%\PROCESSING\hashes.txt >> %OUTPUTFOLDER%\%GAME%\DUMP_BACKUP\hashes.txt
+
+	type %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures_template.txt > %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
+	echo. >> %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
+	echo. >> %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
+	echo [hashes] >> %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
+	type %OUTPUTFOLDER%\%GAME%\DUMP_BACKUP\hashes.txt >> %MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\textures.ini
+
+)
 
 ::IF EXIST "%MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\new\*.png" XCOPY /D /Y /Q "%MEMSTICKFOLDER%\PSP\TEXTURES\%ID%\new\*.png" "%OUTPUTFOLDER%\%GAME%\PROCESSING\DUMP\*.png" 
 
@@ -321,7 +330,7 @@ goto :unsuccessfulexit
 		goto :waitendupscale
 		
 		:upscalerfinishline
-		
+		IF %OPTIMIZE%==YES call %PNGQUANTPATH% --ext .png --force %OUTPUTFOLDER%\%GAME%\PROCESSING\PREUPSCALED\*.png
 		IF NOT %ALPHAFIX%==YES XCOPY "%OUTPUTFOLDER%\%GAME%\PROCESSING\PREUPSCALED\*" "%OUTPUTFOLDER%\%GAME%\PROCESSING\UPSCALED\" > nul
 		IF NOT %ALPHAFIX%==YES goto :installtextures
 		call :progress

@@ -6,6 +6,16 @@ Require ImageMagick: https://imagemagick.org
 
 To be usable you need to edit and configure "UPSCALE PPSSPP Games.bat".
 
+## How to use
+
+All of theses scripts must be in the same folder.
+
+Configure UPSCALE PPSSPP Games.bat (write in your PPSSPP memstick path, ESRGAN or other 'plugins' paths).
+
+Double click on UPSCALE PPSSPP Games.bat to start the script (I recommend making a backup of your texture dump before doing so).
+
+Enter the game you want to upscale.
+
 ## Features
 
 * The model and settings used should minimize artifacts due to AI upcaling (meaning it is meant to work 'universally' but isn't meant to be the best model/settings for a specific game)

@@ -27,3 +27,7 @@ Enter the game you want to upscale.
 
 * Organize the texture pack: all upscaled textures will still have the default name and be in the default folder.
 * Give the best upscaled texture possible
+
+## My collection of upscaled textures
+
+https://drive.google.com/drive/folders/1Ti59iuV4MjXaYdqnwsy0kpVa_HxkuGSj?usp=sharing
